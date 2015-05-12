@@ -22,7 +22,7 @@
   </parent> 
 
   <groupId>com.indoqa.solr</groupId>
-  <artifactId>spring-client</artifactId>
+  <artifactId>solr-spring-client</artifactId>
   <version>5.0.0-SNAPSHOT</version>
 
   <name>Solr Spring Client</name>
