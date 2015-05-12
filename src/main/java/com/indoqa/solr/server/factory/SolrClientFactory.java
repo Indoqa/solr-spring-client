@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.indoqa.solr.server.factory;
 
 import java.io.IOException;
@@ -23,20 +22,15 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.client.solrj.impl.CloudSolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 
-/**
- * 
- * @see http://indoqa.com/a/solr-spring-server-integration-mit-version-4-10-3
- * 
- */
-public class SolrServerFactory implements FactoryBean<SolrServer> {
+public class SolrClientFactory implements FactoryBean<SolrClient> {
 
     public static final String PARAMETER_URL = "url";
     public static final String PARAMETER_EMBEDDED_SOLR_CONFIGURATION_DIR = "embeddedSolrConfigurationDir";
@@ -46,11 +40,11 @@ public class SolrServerFactory implements FactoryBean<SolrServer> {
     private String url;
     private String embeddedSolrConfigurationDir;
 
-    private SolrServer solrServer;
+    private SolrClient solrClient;
 
     @PreDestroy
-    public void destroy() {
-        if (this.solrServer == null) {
+    public void destroy() throws IOException {
+        if (this.solrClient == null) {
             return;
         }
 
@@ -62,13 +56,13 @@ public class SolrServerFactory implements FactoryBean<SolrServer> {
     }
 
     @Override
-    public SolrServer getObject() {
-        return this.solrServer;
+    public SolrClient getObject() {
+        return this.solrClient;
     }
 
     @Override
     public Class<?> getObjectType() {
-        return SolrServer.class;
+        return SolrClient.class;
     }
 
     @PostConstruct
@@ -96,54 +90,58 @@ public class SolrServerFactory implements FactoryBean<SolrServer> {
         return true;
     }
 
-    public void setEmbeddedSolrConfigurationDir(String dir) {
-        this.embeddedSolrConfigurationDir = dir;
+    public void setEmbeddedSolrConfigurationDir(String embeddedSolrConfigurationDir) {
+        this.embeddedSolrConfigurationDir = embeddedSolrConfigurationDir;
     }
 
     public void setUrl(String url) {
         this.url = url;
     }
 
-    private void destroyEmbeddedSolrServer() {
+    private void destroyEmbeddedSolrServer() throws IOException {
         this.logger.info("Shutting down embedded Solr server with url: " + this.url);
-        this.solrServer.shutdown();
+        this.solrClient.close();
 
-        if (this.solrServer instanceof EmbeddedSolrServer) {
-            EmbeddedSolrServer embeddedSolrServer = (EmbeddedSolrServer) this.solrServer;
+        if (this.solrClient instanceof EmbeddedSolrServer) {
+            EmbeddedSolrServer embeddedSolrServer = (EmbeddedSolrServer) this.solrClient;
             embeddedSolrServer.getCoreContainer().shutdown();
         }
 
-        this.solrServer = null;
+        this.solrClient = null;
     }
 
-    private void destroyHttpSolrServer() {
-        this.logger.info("Shutting down HTTP Solr server with url: " + this.url);
-        this.solrServer.shutdown();
-        this.solrServer = null;
+    private void destroyHttpSolrServer() throws IOException {
+        this.logger.info("Shutting down HTTP Solr client  with url: " + this.url);
+
+        this.solrClient.close();
+        this.solrClient = null;
     }
 
     private void initializeCloudSolrServer() {
-        this.logger.info("Initializing Cloud Solr server with URL: " + this.url);
+        this.logger.info("Initializing Cloud Solr client with URL: " + this.url);
 
-        this.solrServer = new CloudSolrServer(CloudSolrServerUrlHelper.getConnectString(this.url));
-        ((CloudSolrServer) this.solrServer).setDefaultCollection(CloudSolrServerUrlHelper.getCollection(this.url));
+        CloudSolrClient cloudSolrClient = new CloudSolrClient(CloudSolrServerUrlHelper.getConnectString(this.url));
+        cloudSolrClient.setDefaultCollection(CloudSolrServerUrlHelper.getCollection(this.url));
+        cloudSolrClient.connect();
 
-        this.logger.info("Created Cloud Solr server with URL: " + this.url);
+        this.solrClient = cloudSolrClient;
+
+        this.logger.info("Created Cloud Solr client with URL: " + this.url);
     }
 
     private void initializeEmbeddedSolrServer() throws IOException {
         this.logger.info("Initializing embedded Solr server with URL: " + this.url);
 
-        this.solrServer = EmbeddedSolrServerBuilder.build(this.url, this.embeddedSolrConfigurationDir);
+        this.solrClient = EmbeddedSolrServerBuilder.build(this.url, this.embeddedSolrConfigurationDir);
 
         this.logger.info("Created embedded Solr server with URL: " + this.url);
     }
 
     private void initializeHttpSolrServer() {
-        this.logger.info("Initializing HTTP Solr server with url: " + this.url);
+        this.logger.info("Initializing HTTP Solr client with url: " + this.url);
 
-        this.solrServer = new HttpSolrServer(this.url);
+        this.solrClient = new HttpSolrClient(this.url);
 
-        this.logger.info("Created HTTP Solr server with url: " + this.url);
+        this.logger.info("Created HTTP Solr client with url: " + this.url);
     }
 }

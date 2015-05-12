@@ -20,8 +20,10 @@ package com.indoqa.solr.server.factory;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 
+import java.io.IOException;
+
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Test;
@@ -30,52 +32,49 @@ public class SolrServerFactoryTest {
 
     // @Test
     // disabled, because it needs infrastructure
-    public void createCloudSolrServer() throws SolrServerException {
-        SolrServerFactory solrServerFactory = new SolrServerFactory();
-        solrServerFactory.setUrl("cloud://localhost:12181,localhost:12182?collection=deep-storage-1.10");
-        solrServerFactory.initialize();
+    public void createCloudSolrClient() throws SolrServerException, IOException {
+        SolrClientFactory solrClientFactory = new SolrClientFactory();
+        solrClientFactory.setUrl("cloud://localhost:12181,localhost:12182?collection=deep-storage-1.10");
+        solrClientFactory.initialize();
 
-        SolrServer solrServer = solrServerFactory.getObject();
+        SolrClient solrClient = solrClientFactory.getObject();
 
-        QueryResponse response = solrServer.query(new SolrQuery("*:*"));
+        QueryResponse response = solrClient.query(new SolrQuery("*:*"));
         assertNotNull(response);
         assertEquals(0, response.getResults().getNumFound());
 
-        solrServer.shutdown();
-        solrServerFactory.destroy();
+        solrClientFactory.destroy();
     }
 
     @Test
-    public void createEmbeddedSolrServer() throws SolrServerException {
-        SolrServerFactory solrServerFactory = new SolrServerFactory();
-        solrServerFactory.setUrl("file://./target/solr/embedded-test-core");
-        solrServerFactory.setEmbeddedSolrConfigurationDir("./src/test/resources/solr/test-core");
-        solrServerFactory.initialize();
+    public void createEmbeddedSolrClient() throws SolrServerException, IOException {
+        SolrClientFactory solrClientFactory = new SolrClientFactory();
+        solrClientFactory.setUrl("file://./target/solr/embedded-test-core");
+        solrClientFactory.setEmbeddedSolrConfigurationDir("./src/test/resources/solr/test-core");
+        solrClientFactory.initialize();
 
-        SolrServer solrServer = solrServerFactory.getObject();
+        SolrClient solrClient = solrClientFactory.getObject();
 
-        QueryResponse response = solrServer.query(new SolrQuery("*:*"));
+        QueryResponse response = solrClient.query(new SolrQuery("*:*"));
         assertNotNull(response);
         assertEquals(0, response.getResults().getNumFound());
 
-        solrServer.shutdown();
-        solrServerFactory.destroy();
+        solrClientFactory.destroy();
     }
 
     // @Test
     // disabled, because it needs infrastructure
-    public void createHttpSolrServer() throws SolrServerException {
-        SolrServerFactory solrServerFactory = new SolrServerFactory();
-        solrServerFactory.setUrl("http://localhost:18983/test-core");
-        solrServerFactory.initialize();
+    public void createHttpSolrClient() throws SolrServerException, IOException {
+        SolrClientFactory solrClientFactory = new SolrClientFactory();
+        solrClientFactory.setUrl("http://localhost:18983/test-core");
+        solrClientFactory.initialize();
 
-        SolrServer solrServer = solrServerFactory.getObject();
+        SolrClient solrClient = solrClientFactory.getObject();
 
-        QueryResponse response = solrServer.query(new SolrQuery("*:*"));
+        QueryResponse response = solrClient.query(new SolrQuery("*:*"));
         assertNotNull(response);
         assertEquals(0, response.getResults().getNumFound());
 
-        solrServer.shutdown();
-        solrServerFactory.destroy();
+        solrClientFactory.destroy();
     }
 }

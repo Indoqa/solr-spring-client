@@ -22,13 +22,13 @@ import static org.apache.solr.core.CoreDescriptor.CORE_DATADIR;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.core.ConfigSolr;
 import org.apache.solr.core.CoreContainer;
 import org.apache.solr.core.CoreDescriptor;
+import org.apache.solr.core.NodeConfig;
+import org.apache.solr.core.NodeConfig.NodeConfigBuilder;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.core.SolrResourceLoader;
 
@@ -38,17 +38,13 @@ public final class EmbeddedSolrServerBuilder {
         // hide utility class constructor
     }
 
-    public static SolrServer build(String url, String embeddedSolrConfigurationDir) throws IOException {
+    public static SolrClient build(String url, String embeddedSolrConfigurationDir) {
         String solrHome = getNormalizedPath(embeddedSolrConfigurationDir);
 
-        InputStream solrXmlInputStream = EmbeddedSolrServerBuilder.class.getResourceAsStream("/embedded-core-container/solr.xml");
-
         SolrResourceLoader loader = new SolrResourceLoader(solrHome);
-        ConfigSolr configSolr = ConfigSolr.fromInputStream(loader, solrXmlInputStream);
+        NodeConfig nodeConfig = new NodeConfigBuilder(null, loader).build();
 
-        solrXmlInputStream.close();
-
-        CoreContainer container = new CoreContainer(loader, configSolr);
+        CoreContainer container = new CoreContainer(nodeConfig);
         container.load();
 
         String dataDir = getNormalizedPath(getDataDir(url));
