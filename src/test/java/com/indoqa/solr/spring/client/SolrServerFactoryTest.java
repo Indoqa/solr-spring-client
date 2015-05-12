@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.indoqa.solr.server.factory;
+package com.indoqa.solr.spring.client;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -27,6 +27,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Test;
+
+import com.indoqa.solr.spring.client.SolrClientFactory;
 
 public class SolrServerFactoryTest {
 

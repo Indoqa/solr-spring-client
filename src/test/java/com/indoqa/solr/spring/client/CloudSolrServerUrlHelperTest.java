@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package com.indoqa.solr.server.factory;
+package com.indoqa.solr.spring.client;
 
-import static com.indoqa.solr.server.factory.CloudSolrServerUrlHelper.getCollection;
-import static com.indoqa.solr.server.factory.CloudSolrServerUrlHelper.getConnectString;
+import static com.indoqa.solr.spring.client.CloudSolrServerUrlHelper.getCollection;
+import static com.indoqa.solr.spring.client.CloudSolrServerUrlHelper.getConnectString;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 

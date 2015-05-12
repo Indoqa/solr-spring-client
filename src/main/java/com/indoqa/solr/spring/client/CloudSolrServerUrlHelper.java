@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.indoqa.solr.server.factory;
+package com.indoqa.solr.spring.client;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

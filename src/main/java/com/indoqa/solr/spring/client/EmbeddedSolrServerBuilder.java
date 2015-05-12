@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.indoqa.solr.server.factory;
+package com.indoqa.solr.spring.client;
 
-import static com.indoqa.solr.server.factory.EmbeddedSolrServerUrlHelper.getDataDir;
+import static com.indoqa.solr.spring.client.EmbeddedSolrServerUrlHelper.getDataDir;
 import static org.apache.solr.core.CoreDescriptor.CORE_DATADIR;
 
 import java.io.File;
