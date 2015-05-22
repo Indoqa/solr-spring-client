@@ -129,7 +129,7 @@ public class SolrClientFactory implements FactoryBean<SolrClient> {
         this.logger.info("Created Cloud Solr client with URL: " + this.url);
     }
 
-    private void initializeEmbeddedSolrServer() throws IOException {
+    private void initializeEmbeddedSolrServer() {
         this.logger.info("Initializing embedded Solr server with URL: " + this.url);
 
         this.solrClient = EmbeddedSolrServerBuilder.build(this.url, this.embeddedSolrConfigurationDir);
