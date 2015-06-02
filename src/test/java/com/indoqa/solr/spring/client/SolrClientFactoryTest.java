@@ -30,7 +30,7 @@ import org.junit.Test;
 
 import com.indoqa.solr.spring.client.SolrClientFactory;
 
-public class SolrServerFactoryTest {
+public class SolrClientFactoryTest {
 
     // @Test
     // disabled, because it needs infrastructure
