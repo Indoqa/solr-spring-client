@@ -30,6 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 
+/**
+ *
+ * @see http://www.indoqa.com/a/solr-spring-client-integration-mit-version-5-1
+ *
+ */
 public class SolrClientFactory implements FactoryBean<SolrClient> {
 
     public static final String PARAMETER_URL = "url";
