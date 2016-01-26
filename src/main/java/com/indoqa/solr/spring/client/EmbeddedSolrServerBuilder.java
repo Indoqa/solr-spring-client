@@ -22,15 +22,12 @@ import static org.apache.solr.core.CoreDescriptor.CORE_DATADIR;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.core.CoreContainer;
-import org.apache.solr.core.CoreDescriptor;
-import org.apache.solr.core.NodeConfig;
+import org.apache.solr.core.*;
 import org.apache.solr.core.NodeConfig.NodeConfigBuilder;
-import org.apache.solr.core.SolrCore;
-import org.apache.solr.core.SolrResourceLoader;
 
 public final class EmbeddedSolrServerBuilder {
 
@@ -38,17 +35,22 @@ public final class EmbeddedSolrServerBuilder {
         // hide utility class constructor
     }
 
-    public static SolrClient build(String url, String embeddedSolrConfigurationDir) {
-        String solrHome = getNormalizedPath(embeddedSolrConfigurationDir);
-
-        SolrResourceLoader loader = new SolrResourceLoader(solrHome);
+    public static SolrClient build(String url, String embeddedSolrConfigurationPath) {
+        SolrResourceLoader loader = new SolrResourceLoader(getNormalizedPath("."));
         NodeConfig nodeConfig = new NodeConfigBuilder(null, loader).build();
 
         CoreContainer container = new CoreContainer(nodeConfig);
         container.load();
 
-        String dataDir = getNormalizedPath(getDataDir(url));
-        CoreDescriptor coreDescriptor = new CoreDescriptor(container, "Embedded Core", solrHome, CORE_DATADIR, dataDir);
+        Properties properties = new Properties();
+        properties.setProperty(CORE_DATADIR, getNormalizedPath(getDataDir(url)));
+
+        if (!new File(embeddedSolrConfigurationPath).exists()) {
+            properties.setProperty(CoreDescriptor.CORE_CONFIG, embeddedSolrConfigurationPath + "/conf/solrconfig.xml");
+            properties.setProperty(CoreDescriptor.CORE_SCHEMA, embeddedSolrConfigurationPath + "/conf/schema.xml");
+        }
+
+        CoreDescriptor coreDescriptor = new CoreDescriptor(container, "Embedded Core", embeddedSolrConfigurationPath, properties);
         SolrCore core = container.create(coreDescriptor);
 
         return new EmbeddedSolrServer(container, core.getName());

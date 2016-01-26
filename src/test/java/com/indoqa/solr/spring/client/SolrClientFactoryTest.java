@@ -17,8 +17,7 @@
 
 package com.indoqa.solr.spring.client;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.*;
 
 import java.io.IOException;
 
@@ -27,8 +26,6 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Test;
-
-import com.indoqa.solr.spring.client.SolrClientFactory;
 
 public class SolrClientFactoryTest {
 
@@ -49,10 +46,26 @@ public class SolrClientFactoryTest {
     }
 
     @Test
-    public void createEmbeddedSolrClient() throws SolrServerException, IOException {
+    public void createEmbeddedSolrClientClasspath() throws SolrServerException, IOException {
         SolrClientFactory solrClientFactory = new SolrClientFactory();
-        solrClientFactory.setUrl("file://./target/solr/embedded-test-core");
-        solrClientFactory.setEmbeddedSolrConfigurationDir("./src/test/resources/solr/test-core");
+        solrClientFactory.setUrl("file://./target/solr/classpath-test-core");
+        solrClientFactory.setEmbeddedSolrConfigurationPath("solr/classpath");
+        solrClientFactory.initialize();
+
+        SolrClient solrClient = solrClientFactory.getObject();
+
+        QueryResponse response = solrClient.query(new SolrQuery("*:*"));
+        assertNotNull(response);
+        assertEquals(0, response.getResults().getNumFound());
+
+        solrClientFactory.destroy();
+    }
+
+    @Test
+    public void createEmbeddedSolrClientFile() throws SolrServerException, IOException {
+        SolrClientFactory solrClientFactory = new SolrClientFactory();
+        solrClientFactory.setUrl("file://./target/solr/file-test-core");
+        solrClientFactory.setEmbeddedSolrConfigurationPath("./src/test/resources/solr/file");
         solrClientFactory.initialize();
 
         SolrClient solrClient = solrClientFactory.getObject();

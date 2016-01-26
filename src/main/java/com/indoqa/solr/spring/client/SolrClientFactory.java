@@ -43,7 +43,7 @@ public class SolrClientFactory implements FactoryBean<SolrClient> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private String url;
-    private String embeddedSolrConfigurationDir;
+    private String embeddedSolrConfigurationPath;
 
     private SolrClient solrClient;
 
@@ -85,8 +85,8 @@ public class SolrClientFactory implements FactoryBean<SolrClient> {
                 this.initializeHttpSolrServer();
             }
         } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "An exception occurred during the initialization of the Solr server: " + e.getMessage(), e);
+            throw new IllegalArgumentException("An exception occurred during the initialization of the Solr server: " + e.getMessage(),
+                e);
         }
     }
 
@@ -95,8 +95,8 @@ public class SolrClientFactory implements FactoryBean<SolrClient> {
         return true;
     }
 
-    public void setEmbeddedSolrConfigurationDir(String embeddedSolrConfigurationDir) {
-        this.embeddedSolrConfigurationDir = embeddedSolrConfigurationDir;
+    public void setEmbeddedSolrConfigurationPath(String embeddedSolrConfigurationPath) {
+        this.embeddedSolrConfigurationPath = embeddedSolrConfigurationPath;
     }
 
     public void setUrl(String url) {
@@ -137,7 +137,7 @@ public class SolrClientFactory implements FactoryBean<SolrClient> {
     private void initializeEmbeddedSolrServer() {
         this.logger.info("Initializing embedded Solr server with URL: " + this.url);
 
-        this.solrClient = EmbeddedSolrServerBuilder.build(this.url, this.embeddedSolrConfigurationDir);
+        this.solrClient = EmbeddedSolrServerBuilder.build(this.url, this.embeddedSolrConfigurationPath);
 
         this.logger.info("Created embedded Solr server with URL: " + this.url);
     }
