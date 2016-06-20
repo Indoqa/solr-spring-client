@@ -22,6 +22,11 @@ import static org.apache.solr.core.CoreDescriptor.CORE_DATADIR;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Properties;
 
 import org.apache.solr.client.solrj.SolrClient;
@@ -36,23 +41,29 @@ public final class EmbeddedSolrServerBuilder {
     }
 
     public static SolrClient build(String url, String embeddedSolrConfigurationPath) {
-        SolrResourceLoader loader = new SolrResourceLoader(getNormalizedPath("."));
-        NodeConfig nodeConfig = new NodeConfigBuilder(null, loader).build();
-
-        CoreContainer container = new CoreContainer(nodeConfig);
-        container.load();
-
         Properties properties = new Properties();
         properties.setProperty(CORE_DATADIR, getNormalizedPath(getDataDir(url)));
 
-        if (!new File(embeddedSolrConfigurationPath).exists()) {
+        SolrResourceLoader loader;
+
+        if (new File(embeddedSolrConfigurationPath).exists()) {
+            loader = new SolrResourceLoader(getNormalizedPath(embeddedSolrConfigurationPath));
+        } else {
+            // use a temporary directory as instance-dir because Solr needs a real directory for this
+            Path tempDirectory = createTempDirectory();
+            loader = new SolrResourceLoader(tempDirectory.toString());
+
+            // change config and schema locations to something that can be found on the classpath
             properties.setProperty(CoreDescriptor.CORE_CONFIG, embeddedSolrConfigurationPath + "/conf/solrconfig.xml");
             properties.setProperty(CoreDescriptor.CORE_SCHEMA, embeddedSolrConfigurationPath + "/conf/schema.xml");
         }
 
-        CoreDescriptor coreDescriptor = new CoreDescriptor(container, "Embedded Core", embeddedSolrConfigurationPath, properties);
-        SolrCore core = container.create(coreDescriptor);
+        NodeConfig nodeConfig = new NodeConfigBuilder(null, loader).build();
+        CoreContainer container = new CoreContainer(nodeConfig);
+        container.load();
 
+        CoreDescriptor coreDescriptor = new CoreDescriptor(container, "Embedded Core", ".", properties);
+        SolrCore core = container.create(coreDescriptor);
         return new EmbeddedSolrServer(container, core.getName());
     }
 
@@ -68,9 +79,52 @@ public final class EmbeddedSolrServerBuilder {
         }
     }
 
+    private static Path createTempDirectory() {
+        try {
+            Path tempDirectory = Files.createTempDirectory("embedded-solr-client");
+            Runtime.getRuntime().addShutdownHook(new CleanupThread(tempDirectory));
+            return tempDirectory;
+        } catch (IOException e) {
+            throw new SetupException("Failed to create temporary directory", e);
+        }
+    }
+
     private static String getNormalizedPath(String path) {
         File file = new File(path);
         file = getCanonicalFile(file);
         return file.getAbsolutePath();
+    }
+
+    private static class CleanupThread extends Thread {
+
+        private Path directory;
+
+        public CleanupThread(Path directory) {
+            this.directory = directory;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Files.walkFileTree(this.directory, new SimpleFileVisitor<Path>() {
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                        Files.delete(dir);
+
+                        return super.postVisitDirectory(dir, exc);
+                    }
+
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        Files.delete(file);
+
+                        return super.visitFile(file, attrs);
+                    }
+                });
+            } catch (IOException e) {
+                // ignore
+            }
+        }
     }
 }
