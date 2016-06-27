@@ -48,9 +48,9 @@
   </licenses>
   
   <properties>
-    <project.build.compiler.version>1.6</project.build.compiler.version>
+    <project.build.compiler.version>1.8</project.build.compiler.version>
     <slf4j-version>1.7.7</slf4j-version>
-    <solr-version>5.1.0</solr-version>
+    <solr-version>6.1.0</solr-version>
     <spring-version>4.1.4.RELEASE</spring-version>
   </properties>
 
@@ -118,8 +118,9 @@
             <exclude>README.md</exclude>
             <exclude>CONTRIBUTORS.txt</exclude>
             <exclude>**/_rest_managed.json</exclude>
-            <exclude>**/solr.xml</exclude>
             <exclude>**/write.lock</exclude>
+            <exclude>**/core.properties</exclude>
+            <exclude>**/managed-schema</exclude>
           </excludes>
         </configuration>
       </plugin>

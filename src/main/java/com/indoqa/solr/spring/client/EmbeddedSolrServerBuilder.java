@@ -18,16 +18,13 @@
 package com.indoqa.solr.spring.client;
 
 import static com.indoqa.solr.spring.client.EmbeddedSolrServerUrlHelper.getDataDir;
-import static org.apache.solr.core.CoreDescriptor.CORE_DATADIR;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
@@ -36,35 +33,42 @@ import org.apache.solr.core.NodeConfig.NodeConfigBuilder;
 
 public final class EmbeddedSolrServerBuilder {
 
+    private static final String CORE_NAME = "Embedded-Core";
+
     private EmbeddedSolrServerBuilder() {
         // hide utility class constructor
     }
 
     public static SolrClient build(String url, String embeddedSolrConfigurationPath) {
-        Properties properties = new Properties();
-        properties.setProperty(CORE_DATADIR, getNormalizedPath(getDataDir(url)));
-
-        SolrResourceLoader loader;
-
         if (new File(embeddedSolrConfigurationPath).exists()) {
-            loader = new SolrResourceLoader(getNormalizedPath(embeddedSolrConfigurationPath));
-        } else {
-            // use a temporary directory as instance-dir because Solr needs a real directory for this
-            Path tempDirectory = createTempDirectory();
-            loader = new SolrResourceLoader(tempDirectory.toString());
+            deleteOldCoreProperties(embeddedSolrConfigurationPath);
 
-            // change config and schema locations to something that can be found on the classpath
-            properties.setProperty(CoreDescriptor.CORE_CONFIG, embeddedSolrConfigurationPath + "/conf/solrconfig.xml");
-            properties.setProperty(CoreDescriptor.CORE_SCHEMA, embeddedSolrConfigurationPath + "/conf/schema.xml");
+            SolrResourceLoader loader = new SolrResourceLoader(getNormalizedPath(embeddedSolrConfigurationPath));
+            NodeConfig nodeConfig = new NodeConfigBuilder(null, loader).build();
+            CoreContainer container = new CoreContainer(nodeConfig);
+            container.load();
+
+            Map<String, String> properties = new HashMap<String, String>();
+            properties.put(CoreDescriptor.CORE_DATADIR, getNormalizedPath(getDataDir(url)).toString());
+
+            SolrCore core = container.create(CORE_NAME, loader.getInstancePath(), properties);
+            return new EmbeddedSolrServer(core);
         }
 
+        // use a temporary directory for the resource loader because Solr needs a real directory for this
+        SolrResourceLoader loader = new SolrResourceLoader(createTempDirectory());
         NodeConfig nodeConfig = new NodeConfigBuilder(null, loader).build();
         CoreContainer container = new CoreContainer(nodeConfig);
         container.load();
 
-        CoreDescriptor coreDescriptor = new CoreDescriptor(container, "Embedded Core", ".", properties);
-        SolrCore core = container.create(coreDescriptor);
-        return new EmbeddedSolrServer(container, core.getName());
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(CoreDescriptor.CORE_DATADIR, getNormalizedPath(getDataDir(url)).toString());
+        properties.put(CoreDescriptor.CORE_CONFIG, embeddedSolrConfigurationPath + "/conf/solrconfig.xml");
+        properties.put(CoreDescriptor.CORE_SCHEMA, embeddedSolrConfigurationPath + "/conf/schema.xml");
+
+        SolrCore core = container.create(CORE_NAME, loader.getInstancePath(), properties);
+        return new EmbeddedSolrServer(core);
+
     }
 
     public static File getCanonicalFile(File file) {
@@ -89,10 +93,23 @@ public final class EmbeddedSolrServerBuilder {
         }
     }
 
-    private static String getNormalizedPath(String path) {
+    private static void deleteOldCoreProperties(String path) {
+        Path corePropertiesPath = Paths.get(path, "core.properties");
+        if (!Files.exists(corePropertiesPath)) {
+            return;
+        }
+
+        try {
+            Files.delete(corePropertiesPath);
+        } catch (IOException e) {
+            // do nothing
+        }
+    }
+
+    private static Path getNormalizedPath(String path) {
         File file = new File(path);
         file = getCanonicalFile(file);
-        return file.getAbsolutePath();
+        return file.toPath();
     }
 
     private static class CleanupThread extends Thread {

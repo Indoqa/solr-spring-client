@@ -125,7 +125,9 @@ public class SolrClientFactory implements FactoryBean<SolrClient> {
     private void initializeCloudSolrServer() {
         this.logger.info("Initializing Cloud Solr client with URL: " + this.url);
 
-        CloudSolrClient cloudSolrClient = new CloudSolrClient(CloudSolrServerUrlHelper.getConnectString(this.url));
+        CloudSolrClient cloudSolrClient = new CloudSolrClient.Builder()
+            .withZkHost(CloudSolrServerUrlHelper.getConnectString(this.url))
+            .build();
         cloudSolrClient.setDefaultCollection(CloudSolrServerUrlHelper.getCollection(this.url));
         cloudSolrClient.connect();
 
@@ -145,7 +147,7 @@ public class SolrClientFactory implements FactoryBean<SolrClient> {
     private void initializeHttpSolrServer() {
         this.logger.info("Initializing HTTP Solr client with url: " + this.url);
 
-        this.solrClient = new HttpSolrClient(this.url);
+        this.solrClient = new HttpSolrClient.Builder(this.url).allowCompression(true).build();
 
         this.logger.info("Created HTTP Solr client with url: " + this.url);
     }
