@@ -7,3 +7,4 @@ release.properties
 .settings/
 .classpath
 .project
+src/test/resources/solr/file/core.properties
