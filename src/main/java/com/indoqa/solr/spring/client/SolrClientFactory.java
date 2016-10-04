@@ -21,7 +21,6 @@ import java.io.IOException;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -72,7 +71,7 @@ public class SolrClientFactory implements FactoryBean<SolrClient> {
 
     @PostConstruct
     public void initialize() {
-        if (StringUtils.isBlank(this.url)) {
+        if (this.url == null || this.url.trim().length() == 0) {
             throw new IllegalArgumentException("The property 'url' is not set or empty.");
         }
 
