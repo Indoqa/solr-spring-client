@@ -48,10 +48,10 @@ public final class EmbeddedSolrServerBuilder {
             CoreContainer container = new CoreContainer(nodeConfig);
             container.load();
 
-            Map<String, String> properties = new HashMap<String, String>();
+            Map<String, String> properties = new HashMap<>();
             properties.put(CoreDescriptor.CORE_DATADIR, getNormalizedPath(getDataDir(url)).toString());
 
-            SolrCore core = container.create(CORE_NAME, loader.getInstancePath(), properties);
+            SolrCore core = container.create(CORE_NAME, loader.getInstancePath(), properties, false);
             return new EmbeddedSolrServer(core);
         }
 
@@ -61,12 +61,12 @@ public final class EmbeddedSolrServerBuilder {
         CoreContainer container = new CoreContainer(nodeConfig);
         container.load();
 
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
         properties.put(CoreDescriptor.CORE_DATADIR, getNormalizedPath(getDataDir(url)).toString());
         properties.put(CoreDescriptor.CORE_CONFIG, embeddedSolrConfigurationPath + "/conf/solrconfig.xml");
         properties.put(CoreDescriptor.CORE_SCHEMA, embeddedSolrConfigurationPath + "/conf/schema.xml");
 
-        SolrCore core = container.create(CORE_NAME, loader.getInstancePath(), properties);
+        SolrCore core = container.create(CORE_NAME, loader.getInstancePath(), properties, false);
         return new EmbeddedSolrServer(core);
 
     }
