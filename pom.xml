@@ -36,7 +36,6 @@
     <connection>scm:git:git@github.com:Indoqa/solr-spring-client.git</connection>
     <developerConnection>scm:git:git@github.com:Indoqa/solr-spring-client.git</developerConnection>
     <url>https://github.com/Indoqa/solr-spring-client</url>
-    <tag>solr-spring-client-6.1.0</tag>
   </scm>
 
   <licenses>

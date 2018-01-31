@@ -31,7 +31,7 @@ import org.springframework.beans.factory.FactoryBean;
 
 /**
  *
- * @see http://www.indoqa.com/a/solr-spring-client-integration-mit-version-5-1
+ * @see <a href="http://www.indoqa.com/a/solr-spring-client-integration-mit-version-5-1">Solr Spring Client Integration</a>
  *
  */
 public class SolrClientFactory implements FactoryBean<SolrClient> {
