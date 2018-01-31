@@ -27,7 +27,7 @@
 
   <groupId>com.indoqa.solr</groupId>
   <artifactId>solr-spring-client</artifactId>
-  <version>6.6.2</version>
+  <version>6.6.3-SNAPSHOT</version>
 
   <name>Solr Spring Client</name>
   <description>A Solr Client Factory for Spring</description>
@@ -36,7 +36,7 @@
     <connection>scm:git:git@github.com:Indoqa/solr-spring-client.git</connection>
     <developerConnection>scm:git:git@github.com:Indoqa/solr-spring-client.git</developerConnection>
     <url>https://github.com/Indoqa/solr-spring-client</url>
-    <tag>solr-spring-client-6.6.2</tag>
+    <tag>solr-spring-client-6.1.0</tag>
   </scm>
 
   <licenses>
