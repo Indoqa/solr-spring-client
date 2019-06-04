@@ -15,8 +15,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <packaging>jar</packaging>
 
@@ -28,7 +27,7 @@
 
   <groupId>com.indoqa.solr</groupId>
   <artifactId>solr-spring-client</artifactId>
-  <version>7.7.1-SNAPSHOT</version>
+  <version>7.7.1</version>
 
   <name>Solr Spring Client</name>
   <description>A Solr Client Factory for Spring</description>
@@ -37,7 +36,7 @@
     <connection>scm:git:git@github.com:Indoqa/solr-spring-client.git</connection>
     <developerConnection>scm:git:git@github.com:Indoqa/solr-spring-client.git</developerConnection>
     <url>https://github.com/Indoqa/solr-spring-client</url>
-    <tag>HEAD</tag>
+    <tag>solr-spring-client-7.7.1</tag>
   </scm>
 
   <licenses>
