@@ -1,6 +1,6 @@
 # Indoqa Solr Spring Client
 
-This project offers a Spring based implementation of a FactoryBean for communicating with Apache Solr 5.x servers. 
+This project offers a Spring based implementation of a FactoryBean for communicating with Apache Solr servers. 
 
 The SolrClientFactory allows to communicate with Solr either embedded, via http or Apache ZooKeeper for SolrCloud installations.
 
@@ -15,9 +15,9 @@ The desired behavior is configured with the supplied url:
 
 ### Requirements
 
-  * Apache Solr 5.0+
-  * Spring Beans 3.1+
-  * Java 6+
+  * Apache Solr 8.0+
+  * Spring Beans 4.1+
+  * Java 8+
   
 ### Build
 
