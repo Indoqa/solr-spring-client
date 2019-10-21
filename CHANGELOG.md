@@ -1,5 +1,8 @@
-# v8.1.1 | TBA
-* Upgrade to Solr 8.1.1
+# v8.x.x | TBA
+* Upgrade to Solr 8.x.x
+
+# v8.2.0 | 2019-10-21
+* Upgrade to Solr 8.2.0
 
 # v7.7.2 | 2019-06-04
 * Upgrade to Solr 7.7.2
