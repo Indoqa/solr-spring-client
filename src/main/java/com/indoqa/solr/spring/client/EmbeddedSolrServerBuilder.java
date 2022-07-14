@@ -23,7 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrClient;
@@ -43,13 +45,14 @@ public final class EmbeddedSolrServerBuilder {
         if (new File(embeddedSolrConfigurationPath).exists()) {
             deleteOldCoreProperties(embeddedSolrConfigurationPath);
 
+            Path dataPath = getNormalizedPath(getDataDir(url));
             SolrResourceLoader loader = new SolrResourceLoader(getNormalizedPath(embeddedSolrConfigurationPath));
-            NodeConfig nodeConfig = new NodeConfigBuilder(null, loader).build();
+            NodeConfig nodeConfig = new NodeConfigBuilder(null, loader.getInstancePath()).setAllowPaths(new HashSet<>(Arrays.asList(dataPath))).build();
             CoreContainer container = new CoreContainer(nodeConfig);
             container.load();
 
             Map<String, String> properties = new HashMap<>();
-            properties.put(CoreDescriptor.CORE_DATADIR, getNormalizedPath(getDataDir(url)).toString());
+            properties.put(CoreDescriptor.CORE_DATADIR, dataPath.toString());
 
             SolrCore core = container.create(CORE_NAME, loader.getInstancePath(), properties, false);
             return new EmbeddedSolrServer(core);
@@ -57,7 +60,7 @@ public final class EmbeddedSolrServerBuilder {
 
         // use a temporary directory for the resource loader because Solr needs a real directory for this
         SolrResourceLoader loader = new SolrResourceLoader(createTempDirectory());
-        NodeConfig nodeConfig = new NodeConfigBuilder(null, loader).build();
+        NodeConfig nodeConfig = new NodeConfigBuilder(null, loader.getInstancePath()).build();
         CoreContainer container = new CoreContainer(nodeConfig);
         container.load();
 
