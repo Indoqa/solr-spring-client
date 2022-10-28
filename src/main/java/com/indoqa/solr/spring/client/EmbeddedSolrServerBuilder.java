@@ -47,7 +47,7 @@ public final class EmbeddedSolrServerBuilder {
 
             Path dataPath = getNormalizedPath(getDataDir(url));
             SolrResourceLoader loader = new SolrResourceLoader(getNormalizedPath(embeddedSolrConfigurationPath));
-            NodeConfig nodeConfig = new NodeConfigBuilder(null, loader.getInstancePath()).setAllowPaths(new HashSet<>(Arrays.asList(dataPath))).build();
+            NodeConfig nodeConfig = buildNodeConfig(dataPath, loader);
             CoreContainer container = new CoreContainer(nodeConfig);
             container.load();
 
@@ -58,20 +58,26 @@ public final class EmbeddedSolrServerBuilder {
             return new EmbeddedSolrServer(core);
         }
 
+        Path dataPath = getNormalizedPath(getDataDir(url));
+
         // use a temporary directory for the resource loader because Solr needs a real directory for this
         SolrResourceLoader loader = new SolrResourceLoader(createTempDirectory());
-        NodeConfig nodeConfig = new NodeConfigBuilder(null, loader.getInstancePath()).build();
+        NodeConfig nodeConfig = buildNodeConfig(dataPath, loader);
         CoreContainer container = new CoreContainer(nodeConfig);
         container.load();
 
         Map<String, String> properties = new HashMap<>();
-        properties.put(CoreDescriptor.CORE_DATADIR, getNormalizedPath(getDataDir(url)).toString());
+        properties.put(CoreDescriptor.CORE_DATADIR, dataPath.toString());
         properties.put(CoreDescriptor.CORE_CONFIG, embeddedSolrConfigurationPath + "/conf/solrconfig.xml");
         properties.put(CoreDescriptor.CORE_SCHEMA, embeddedSolrConfigurationPath + "/conf/schema.xml");
 
         SolrCore core = container.create(CORE_NAME, loader.getInstancePath(), properties, false);
         return new EmbeddedSolrServer(core);
 
+    }
+
+    private static NodeConfig buildNodeConfig(Path dataPath, SolrResourceLoader loader) {
+        return new NodeConfigBuilder(null, loader.getInstancePath()).setAllowPaths(new HashSet<>(Arrays.asList(dataPath))).build();
     }
 
     public static File getCanonicalFile(File file) {
