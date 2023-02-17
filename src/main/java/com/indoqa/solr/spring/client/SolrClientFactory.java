@@ -18,24 +18,23 @@ package com.indoqa.solr.spring.client;
 
 import java.io.IOException;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  *
- * @see  <a href="http://www.indoqa.com/a/solr-spring-client-integration-mit-version-5-1">
- *     http://www.indoqa.com/a/solr-spring-client-integration-mit-version-5-1</a>
+ * @see <a href="http://www.indoqa.com/a/solr-spring-client-integration-mit-version-5-1">
+ *      http://www.indoqa.com/a/solr-spring-client-integration-mit-version-5-1</a>
  *
  */
-public class SolrClientFactory implements FactoryBean<SolrClient> {
+public class SolrClientFactory implements FactoryBean<SolrClient>, InitializingBean, DisposableBean {
 
     public static final String PARAMETER_URL = "url";
     public static final String PARAMETER_EMBEDDED_SOLR_CONFIGURATION_DIR = "embeddedSolrConfigurationDir";
@@ -47,7 +46,12 @@ public class SolrClientFactory implements FactoryBean<SolrClient> {
 
     private SolrClient solrClient;
 
-    @PreDestroy
+    @Override
+    public void afterPropertiesSet() {
+        this.initialize();
+    }
+
+    @Override
     public void destroy() throws IOException {
         if (this.solrClient == null) {
             return;
@@ -70,7 +74,6 @@ public class SolrClientFactory implements FactoryBean<SolrClient> {
         return SolrClient.class;
     }
 
-    @PostConstruct
     public void initialize() {
         if (this.url == null || this.url.trim().length() == 0) {
             throw new IllegalArgumentException("The property 'url' is not set or empty.");
@@ -85,7 +88,8 @@ public class SolrClientFactory implements FactoryBean<SolrClient> {
                 this.initializeHttpSolrServer();
             }
         } catch (Exception e) {
-            throw new IllegalArgumentException("An exception occurred during the initialization of the Solr server: " + e.getMessage(),
+            throw new IllegalArgumentException(
+                "An exception occurred during the initialization of the Solr server: " + e.getMessage(),
                 e);
         }
     }
