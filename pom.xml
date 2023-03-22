@@ -27,7 +27,7 @@
 
   <groupId>com.indoqa.solr</groupId>
   <artifactId>solr-spring-client</artifactId>
-  <version>8.11.2.2-SNAPSHOT</version>
+  <version>8.11.2.2</version>
 
   <name>Solr Spring Client</name>
   <description>A Solr Client Factory for Spring</description>
@@ -36,7 +36,7 @@
     <connection>scm:git:git@github.com:Indoqa/solr-spring-client.git</connection>
     <developerConnection>scm:git:git@github.com:Indoqa/solr-spring-client.git</developerConnection>
     <url>https://github.com/Indoqa/solr-spring-client</url>
-    <tag>HEAD</tag>
+    <tag>solr-spring-client-8.11.2.2</tag>
   </scm>
 
   <licenses>
