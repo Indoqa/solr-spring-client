@@ -20,13 +20,16 @@ import java.io.IOException;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.apache.solr.client.solrj.impl.CloudHttp2SolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+
+import com.indoqa.solr.spring.client.CloudSolrServerUrlHelper.ZookeeperSettings;
 
 /**
  *
@@ -129,10 +132,11 @@ public class SolrClientFactory implements FactoryBean<SolrClient>, InitializingB
     private void initializeCloudSolrServer() {
         this.logger.info("Initializing Cloud Solr client with URL: " + this.url);
 
-        CloudSolrClient cloudSolrClient = new CloudSolrClient.Builder()
-            .withZkHost(CloudSolrServerUrlHelper.getConnectString(this.url))
+        ZookeeperSettings zookeeperSettings = CloudSolrServerUrlHelper.getZookeeperSettings(this.url);
+
+        CloudSolrClient cloudSolrClient = new CloudHttp2SolrClient.Builder(zookeeperSettings.getHosts(), zookeeperSettings.getZkRoot())
+            .withDefaultCollection(zookeeperSettings.getCollection())
             .build();
-        cloudSolrClient.setDefaultCollection(CloudSolrServerUrlHelper.getCollection(this.url));
         cloudSolrClient.connect();
 
         this.solrClient = cloudSolrClient;
@@ -149,10 +153,10 @@ public class SolrClientFactory implements FactoryBean<SolrClient>, InitializingB
     }
 
     private void initializeHttpSolrServer() {
-        this.logger.info("Initializing HTTP Solr client with url: " + this.url);
+        this.logger.info("Initializing HTTP2 Solr client with url: " + this.url);
 
-        this.solrClient = new HttpSolrClient.Builder(this.url).allowCompression(true).build();
+        this.solrClient = new Http2SolrClient.Builder(this.url).build();
 
-        this.logger.info("Created HTTP Solr client with url: " + this.url);
+        this.logger.info("Created HTTP2 Solr client with url: " + this.url);
     }
 }

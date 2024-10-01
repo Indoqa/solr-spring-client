@@ -17,6 +17,9 @@
 
 package com.indoqa.solr.spring.client;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,7 +55,79 @@ public class CloudSolrServerUrlHelper {
         return null;
     }
 
+    public static ZookeeperSettings getZookeeperSettings(String url) {
+        if (!isCloudSolrServerUrl(url)) {
+            throw new IllegalArgumentException("URL '" + url + "' does not have prefix '" + CLOUD_PREFIX + "'.");
+        }
+
+        ZookeeperSettings zookeeperSettings = new ZookeeperSettings();
+
+        String hostsPart = substringBetween(url, CLOUD_PREFIX, "?");
+        zookeeperSettings.setHosts(Arrays.asList(hostsPart.split("\\s*,\\s*")));
+
+        String parametersPart = substringBetween(url, "?", null);
+        String[] parameters = parametersPart.split("\\s*&\\s*");
+        for (String eachParameter : parameters) {
+            String[] values = eachParameter.split("\\*=\\s*");
+            if ("collection".equals(values[0])) {
+                zookeeperSettings.setCollection(values[1]);
+            }
+
+            if ("zkRoot".equals(values[0])) {
+                zookeeperSettings.setZkRoot(Optional.ofNullable(values[1]));
+            }
+        }
+
+        return zookeeperSettings;
+    }
+
     public static boolean isCloudSolrServerUrl(String url) {
         return url.startsWith(CLOUD_PREFIX);
+    }
+
+    private static String substringBetween(String value, String start, String end) {
+        int startIndex = value.indexOf(start);
+        if (startIndex == -1) {
+            throw new IllegalArgumentException();
+        }
+        startIndex += start.length();
+
+        int endIndex = value.indexOf(end, startIndex);
+        if (endIndex != -1) {
+            return value.substring(startIndex, endIndex);
+        }
+
+        return value.substring(startIndex);
+    }
+
+    public static class ZookeeperSettings {
+
+        private List<String> hosts;
+        private String collection;
+        private Optional<String> zkRoot = Optional.empty();
+
+        public String getCollection() {
+            return this.collection;
+        }
+
+        public List<String> getHosts() {
+            return this.hosts;
+        }
+
+        public Optional<String> getZkRoot() {
+            return this.zkRoot;
+        }
+
+        public void setCollection(String collection) {
+            this.collection = collection;
+        }
+
+        public void setHosts(List<String> hosts) {
+            this.hosts = hosts;
+        }
+
+        public void setZkRoot(Optional<String> zkRoot) {
+            this.zkRoot = zkRoot;
+        }
     }
 }
