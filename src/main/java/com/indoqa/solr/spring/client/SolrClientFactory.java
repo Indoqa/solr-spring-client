@@ -23,6 +23,7 @@ import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.impl.CloudHttp2SolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.Http2SolrClient;
+import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -41,6 +42,8 @@ public class SolrClientFactory implements FactoryBean<SolrClient>, InitializingB
 
     public static final String PARAMETER_URL = "url";
     public static final String PARAMETER_EMBEDDED_SOLR_CONFIGURATION_DIR = "embeddedSolrConfigurationDir";
+
+    private static final String HTTP2_PREFIX = "http2:";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -87,6 +90,8 @@ public class SolrClientFactory implements FactoryBean<SolrClient>, InitializingB
                 this.initializeEmbeddedSolrServer();
             } else if (CloudSolrServerUrlHelper.isCloudSolrServerUrl(this.url)) {
                 this.initializeCloudSolrServer();
+            } else if (this.url.startsWith(HTTP2_PREFIX)) {
+                this.initializeHttp2SolrServer();
             } else {
                 this.initializeHttpSolrServer();
             }
@@ -152,11 +157,20 @@ public class SolrClientFactory implements FactoryBean<SolrClient>, InitializingB
         this.logger.info("Created embedded Solr server with URL: " + this.url);
     }
 
+    private void initializeHttp2SolrServer() {
+        String normalizedUrl = this.url.replace(HTTP2_PREFIX, "http:");
+        this.logger.info("Initializing HTTP2 Solr client with url: " + normalizedUrl);
+
+        this.solrClient = new Http2SolrClient.Builder(normalizedUrl).build();
+
+        this.logger.info("Created HTTP2 Solr client with url: " + normalizedUrl);
+    }
+
     private void initializeHttpSolrServer() {
-        this.logger.info("Initializing HTTP2 Solr client with url: " + this.url);
+        this.logger.info("Initializing HTTP Solr client with url: " + this.url);
 
-        this.solrClient = new Http2SolrClient.Builder(this.url).build();
+        this.solrClient = new HttpJdkSolrClient.Builder(this.url).build();
 
-        this.logger.info("Created HTTP2 Solr client with url: " + this.url);
+        this.logger.info("Created HTTP Solr client with url: " + this.url);
     }
 }
