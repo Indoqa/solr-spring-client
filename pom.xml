@@ -96,16 +96,6 @@
   </dependencies>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>com.indoqa</groupId>
-          <artifactId>cycle-maven-plugin</artifactId>
-          <version>3.0.0</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-
     <plugins>
       <plugin>
         <groupId>org.apache.rat</groupId>
@@ -123,6 +113,16 @@
           </excludes>
         </configuration>
       </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.12</version>
+        </plugin>
+        <plugin>
+          <groupId>com.indoqa</groupId>
+          <artifactId>cycle-maven-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
     </plugins>
   </build>
 </project>
