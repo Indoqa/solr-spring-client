@@ -17,12 +17,12 @@
 
 package com.indoqa.solr.spring.client;
 
-import static com.indoqa.solr.spring.client.CloudSolrServerUrlHelper.getCollection;
-import static com.indoqa.solr.spring.client.CloudSolrServerUrlHelper.getConnectString;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
+import static com.indoqa.solr.spring.client.CloudSolrServerUrlHelper.*;
+import static junit.framework.Assert.*;
 
 import org.junit.Test;
+
+import com.indoqa.solr.spring.client.CloudSolrServerUrlHelper.ZookeeperSettings;
 
 public class CloudSolrServerUrlHelperTest {
 
@@ -32,10 +32,13 @@ public class CloudSolrServerUrlHelperTest {
         assertEquals("abcdef", getCollection("cloud://zkHost1:2181,zkHost2:2181?collection=abcdef&timeout=10000"));
         assertEquals("abcdef", getCollection("cloud://zkHost1:2181,zkHost2:2181?timeout=10000&collection=abcdef"));
         assertEquals("abcdef", getCollection("cloud://zkHost1:2181,zkHost2:2181?collection=abcdef&wrong-collection=xyz"));
-        assertEquals("abcdef", getCollection("cloud://zkHost1:2181,zkHost2:2181?wrong-collection=xyz&collection=abcdef&timeout=10000"));
+        assertEquals(
+            "abcdef",
+            getCollection("cloud://zkHost1:2181,zkHost2:2181?wrong-collection=xyz&collection=abcdef&timeout=10000"));
 
         assertNull(getCollection("cloud://zkHost1:2181,zkHost2:2181?wrong-collection=xyz&timeout=10000"));
         assertNull(getCollection("cloud://zkHost1:2181,zkHost2:2181?wrong-collection=xyz&timeout=10000&collection="));
+
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -52,5 +55,20 @@ public class CloudSolrServerUrlHelperTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetConnectStringFromInvalidURL() {
         getConnectString("http://localhost:8983/solr/abcdef");
+    }
+
+    public void testGetZookkeeperSettings() {
+        ZookeeperSettings settings = CloudSolrServerUrlHelper.getZookeeperSettings(
+            "cloud://prod.isi-solr-1.indoqa.server:2181,prod.isi-solr-2.indoqa.server:2181,prod.isi-solr-3.indoqa.server:2181");
+
+        assertNotNull(settings);
+
+        assertNull(settings.getCollection());
+        assertTrue(settings.getZkRoot().isEmpty());
+
+        assertEquals(3, settings.getHosts().size());
+        assertEquals("prod.isi-solr-1.indoqa.server:2181", settings.getHosts().get(0));
+        assertEquals("prod.isi-solr-2.indoqa.server:2181", settings.getHosts().get(1));
+        assertEquals("prod.isi-solr-3.indoqa.server:2181", settings.getHosts().get(2));
     }
 }

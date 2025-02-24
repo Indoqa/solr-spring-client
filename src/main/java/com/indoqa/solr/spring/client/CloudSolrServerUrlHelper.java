@@ -65,16 +65,18 @@ public class CloudSolrServerUrlHelper {
         String hostsPart = substringBetween(url, CLOUD_PREFIX, "?");
         zookeeperSettings.setHosts(Arrays.asList(hostsPart.split("\\s*,\\s*")));
 
-        String parametersPart = substringBetween(url, "?", null);
-        String[] parameters = parametersPart.split("\\s*&\\s*");
-        for (String eachParameter : parameters) {
-            String[] values = eachParameter.split("\\*=\\s*");
-            if ("collection".equals(values[0])) {
-                zookeeperSettings.setCollection(values[1]);
-            }
+        if (url.indexOf('?') != -1) {
+            String parametersPart = substringBetween(url, "?", null);
+            String[] parameters = parametersPart.split("\\s*&\\s*");
+            for (String eachParameter : parameters) {
+                String[] values = eachParameter.split("\\*=\\s*");
+                if ("collection".equals(values[0])) {
+                    zookeeperSettings.setCollection(values[1]);
+                }
 
-            if ("zkRoot".equals(values[0])) {
-                zookeeperSettings.setZkRoot(Optional.ofNullable(values[1]));
+                if ("zkRoot".equals(values[0])) {
+                    zookeeperSettings.setZkRoot(Optional.ofNullable(values[1]));
+                }
             }
         }
 
@@ -91,6 +93,10 @@ public class CloudSolrServerUrlHelper {
             throw new IllegalArgumentException();
         }
         startIndex += start.length();
+
+        if (end == null) {
+            return value.substring(startIndex);
+        }
 
         int endIndex = value.indexOf(end, startIndex);
         if (endIndex != -1) {
