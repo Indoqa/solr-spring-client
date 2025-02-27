@@ -62,11 +62,21 @@ public class CloudSolrServerUrlHelper {
 
         ZookeeperSettings zookeeperSettings = new ZookeeperSettings();
 
-        String hostsPart = substringBetween(url, CLOUD_PREFIX, "?");
+        String hostsPart;
+        String parametersPart;
+
+        int separatorIndex = url.indexOf('?');
+        if (separatorIndex == -1) {
+            hostsPart = url.substring(CLOUD_PREFIX.length());
+            parametersPart = null;
+        } else {
+            hostsPart = url.substring(CLOUD_PREFIX.length(), separatorIndex);
+            parametersPart = url.substring(separatorIndex + 1);
+        }
+
         zookeeperSettings.setHosts(Arrays.asList(hostsPart.split("\\s*,\\s*")));
 
-        if (url.indexOf('?') != -1) {
-            String parametersPart = substringBetween(url, "?", null);
+        if (parametersPart != null) {
             String[] parameters = parametersPart.split("\\s*&\\s*");
             for (String eachParameter : parameters) {
                 String[] values = eachParameter.split("\\*=\\s*");
@@ -85,25 +95,6 @@ public class CloudSolrServerUrlHelper {
 
     public static boolean isCloudSolrServerUrl(String url) {
         return url.startsWith(CLOUD_PREFIX);
-    }
-
-    private static String substringBetween(String value, String start, String end) {
-        int startIndex = value.indexOf(start);
-        if (startIndex == -1) {
-            throw new IllegalArgumentException();
-        }
-        startIndex += start.length();
-
-        if (end == null) {
-            return value.substring(startIndex);
-        }
-
-        int endIndex = value.indexOf(end, startIndex);
-        if (endIndex != -1) {
-            return value.substring(startIndex, endIndex);
-        }
-
-        return value.substring(startIndex);
     }
 
     public static class ZookeeperSettings {
