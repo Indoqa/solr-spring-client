@@ -169,7 +169,7 @@ public class SolrClientFactory implements FactoryBean<SolrClient>, InitializingB
     private void initializeHttpSolrServer() {
         this.logger.info("Initializing HTTP Solr client with url: " + this.url);
 
-        this.solrClient = new HttpJdkSolrClient.Builder(this.url).build();
+        this.solrClient = new HttpJdkSolrClient.Builder(this.url).useHttp1_1(true).build();
 
         this.logger.info("Created HTTP Solr client with url: " + this.url);
     }
