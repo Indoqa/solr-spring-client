@@ -15,7 +15,7 @@
   limitations under the License.
 **/
 pipeline {
-  
+
   agent any
 
   parameters {
@@ -34,28 +34,28 @@ pipeline {
   }
 
   tools {
-    maven 'Maven 3.5.x' 
+    maven 'Maven 3.9.6'
     jdk 'J2SDK 17 (AdoptOpenJdk)'
   }
 
   stages {
     stage('Build') {
       options {
-        timeout(time: 5, unit: 'MINUTES') 
-      }    
+        timeout(time: 5, unit: 'MINUTES')
+      }
       steps {
         sh 'mvn clean install -Ptest-coverage,indoqa-release ${MAVEN_BUILD_PROPERTIES}'
       }
     }
 
-    stage('SonarQube analysis') { 
+    stage('SonarQube analysis') {
       when {
         environment name: 'RUN_SONAR', value: 'true'
       }
 
       steps {
-        withSonarQubeEnv('sonar') { 
-          withEnv(["JAVA_HOME=${tool 'Sonar_JDK'}", "PATH=${tool 'Sonar_JDK'}/bin:${env.PATH}"]) {          
+        withSonarQubeEnv('sonar') {
+          withEnv(["JAVA_HOME=${tool 'Sonar_JDK'}", "PATH=${tool 'Sonar_JDK'}/bin:${env.PATH}"]) {
             sh 'mvn -Ptest-coverage,indoqa-release sonar:sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.password= '
           }
         }
@@ -69,7 +69,7 @@ pipeline {
           environment name: 'DEPLOY_ARTIFACTS', value: 'true'
         }
       }
-      
+
       steps {
         sh 'mvn deploy ${DEPLOY_SETTINGS} ${MAVEN_BUILD_PROPERTIES}'
       }
