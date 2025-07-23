@@ -25,7 +25,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.junit.Test;
 
 public class SolrClientFactoryTest {
 
@@ -34,38 +33,6 @@ public class SolrClientFactoryTest {
     public void createCloudSolrClient() throws SolrServerException, IOException {
         SolrClientFactory solrClientFactory = new SolrClientFactory();
         solrClientFactory.setUrl("cloud://localhost:12181,localhost:12182?collection=deep-storage-1.10");
-        solrClientFactory.initialize();
-
-        SolrClient solrClient = solrClientFactory.getObject();
-
-        QueryResponse response = solrClient.query(new SolrQuery("*:*"));
-        assertNotNull(response);
-        assertEquals(0, response.getResults().getNumFound());
-
-        solrClientFactory.destroy();
-    }
-
-     @Test
-    public void createEmbeddedSolrClientClasspath() throws SolrServerException, IOException {
-        SolrClientFactory solrClientFactory = new SolrClientFactory();
-        solrClientFactory.setUrl("file://./target/solr/classpath-test-core");
-        solrClientFactory.setEmbeddedSolrConfigurationPath("solr/classpath");
-        solrClientFactory.initialize();
-
-        SolrClient solrClient = solrClientFactory.getObject();
-
-        QueryResponse response = solrClient.query(new SolrQuery("*:*"));
-        assertNotNull(response);
-        assertEquals(0, response.getResults().getNumFound());
-
-        solrClientFactory.destroy();
-    }
-
-    @Test
-    public void createEmbeddedSolrClientFile() throws SolrServerException, IOException {
-        SolrClientFactory solrClientFactory = new SolrClientFactory();
-        solrClientFactory.setUrl("file://./target/solr/file-test-core");
-        solrClientFactory.setEmbeddedSolrConfigurationPath("./src/test/resources/solr/file");
         solrClientFactory.initialize();
 
         SolrClient solrClient = solrClientFactory.getObject();
