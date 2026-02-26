@@ -10,3 +10,4 @@ release.properties
 src/test/resources/solr/file/core.properties
 *.iml
 .idea
+.flattened-pom.xml
