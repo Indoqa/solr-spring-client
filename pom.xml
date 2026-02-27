@@ -51,29 +51,18 @@
   <properties>
     <project.build.compiler.version>21</project.build.compiler.version>
 
-    <solr-zookeper-bom-version>9.6.1.0-SNAPSHOT</solr-zookeper-bom-version>
+    <shaded-solrj-version>9.6.1</shaded-solrj-version>
     <slf4j-version>2.0.17</slf4j-version>
     <spring-version>6.2.8</spring-version>
     <junit-version>4.13.1</junit-version>
   </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.indoqa</groupId>
-        <artifactId>indoqa-solr-zookeeper-bom</artifactId>
-        <version>${solr-zookeper-bom-version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <dependencies>
     <!-- Solr -->
     <dependency>
       <groupId>com.indoqa</groupId>
       <artifactId>indoqa-solrj-shaded</artifactId>
+      <version>${shaded-solrj-version}</version>
     </dependency>
 
     <dependency>
